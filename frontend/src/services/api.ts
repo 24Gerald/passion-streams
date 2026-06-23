@@ -30,6 +30,18 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
+      // Skip redirect for guest test mode (no real auth token)
+      try {
+        const stored = localStorage.getItem('passion-streams-auth');
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (parsed.state?.isGuest) {
+            return Promise.reject(error);
+          }
+        }
+      } catch {
+        // Invalid stored auth state
+      }
       // Unauthorized - clear auth and redirect to login
       localStorage.removeItem('passion-streams-auth');
       window.location.href = '/login';

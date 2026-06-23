@@ -1,15 +1,18 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type { User, MaritalStatus } from '@/shared/types';
+import { UserRole } from '@/shared/types';
 import { authService } from '../services/authService';
 
 interface AuthState {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
+  isGuest: boolean;
   isLoading: boolean;
   setUser: (user: User | null) => void;
   setToken: (token: string | null) => void;
+  setGuestProfile: (age: number, maritalStatus: MaritalStatus) => void;
   login: (email: string, password: string) => Promise<void>;
   signup: (data: SignupData) => Promise<void>;
   logout: () => Promise<void>;
@@ -34,10 +37,32 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       token: null,
       isAuthenticated: false,
+      isGuest: false,
       isLoading: true,
 
       setUser: (user) => set({ user, isAuthenticated: !!user }),
       setToken: (token) => set({ token }),
+
+      setGuestProfile: (age, maritalStatus) => {
+        const guestUser: User = {
+          _id: 'guest',
+          email: 'guest@test.local',
+          fullName: 'Guest',
+          age,
+          location: { country: '', city: '' },
+          maritalStatus,
+          role: UserRole.USER,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        };
+        set({
+          user: guestUser,
+          token: null,
+          isAuthenticated: true,
+          isGuest: true,
+          isLoading: false,
+        });
+      },
 
       login: async (email, password) => {
         try {
@@ -71,12 +96,15 @@ export const useAuthStore = create<AuthState>()(
 
       logout: async () => {
         try {
-          await authService.logout();
+          if (!get().isGuest) {
+            await authService.logout();
+          }
         } finally {
           set({
             user: null,
             token: null,
             isAuthenticated: false,
+            isGuest: false,
             isLoading: false,
           });
         }
@@ -84,18 +112,23 @@ export const useAuthStore = create<AuthState>()(
 
       checkAuth: async () => {
         try {
-          const token = get().token;
+          const { token, isGuest, user } = get();
+          if (isGuest && user) {
+            set({ isAuthenticated: true, isLoading: false });
+            return;
+          }
           if (!token) {
             set({ isLoading: false });
             return;
           }
-          const user = await authService.getCurrentUser();
-          set({ user, isAuthenticated: !!user, isLoading: false });
+          const currentUser = await authService.getCurrentUser();
+          set({ user: currentUser, isAuthenticated: !!currentUser, isLoading: false });
         } catch (error) {
           set({
             user: null,
             token: null,
             isAuthenticated: false,
+            isGuest: false,
             isLoading: false,
           });
         }
@@ -104,7 +137,13 @@ export const useAuthStore = create<AuthState>()(
     {
       name: 'passion-streams-auth',
       storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({ token: state.token, user: state.user }),
+      partialize: (state) => ({ token: state.token, user: state.user, isGuest: state.isGuest }),
+      onRehydrateStorage: () => (state) => {
+        if (state?.isGuest && state?.user) {
+          state.isAuthenticated = true;
+          state.isLoading = false;
+        }
+      },
     }
   )
 );

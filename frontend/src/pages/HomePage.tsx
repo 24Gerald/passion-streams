@@ -29,6 +29,13 @@ export default function HomePage() {
             {!isAuthenticated && (
               <div className="flex justify-center space-x-4">
                 <Link
+                  to="/login"
+                  className="px-8 py-4 bg-gradient-blue text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-primary-blue/50 transition-all flex items-center space-x-2"
+                >
+                  <span>Get Started</span>
+                  <FiArrowRight className="w-5 h-5" />
+                </Link>
+                {/* <Link
                   to="/signup"
                   className="px-8 py-4 bg-gradient-blue text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-primary-blue/50 transition-all flex items-center space-x-2"
                 >
@@ -40,7 +47,7 @@ export default function HomePage() {
                   className="px-8 py-4 bg-transparent border-2 border-primary-blue text-primary-blue rounded-lg font-semibold hover:bg-primary-blue/10 transition-all"
                 >
                   Sign In
-                </Link>
+                </Link> */}
               </div>
             )}
             {isAuthenticated && (
@@ -97,12 +104,19 @@ export default function HomePage() {
           </p>
           {!isAuthenticated && (
             <Link
+              to="/login"
+              className="inline-flex items-center space-x-2 px-8 py-4 bg-gradient-blue text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-primary-blue/50 transition-all"
+            >
+              <span>Get Started</span>
+              <FiArrowRight className="w-5 h-5" />
+            </Link>
+            {/* <Link
               to="/signup"
               className="inline-flex items-center space-x-2 px-8 py-4 bg-gradient-blue text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-primary-blue/50 transition-all"
             >
               <span>Create Account</span>
               <FiArrowRight className="w-5 h-5" />
-            </Link>
+            </Link> */}
           )}
         </div>
       </section>
