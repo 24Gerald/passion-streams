@@ -103,20 +103,22 @@ export default function HomePage() {
             Join a community committed to intentional, faith-based relationships
           </p>
           {!isAuthenticated && (
-            <Link
-              to="/login"
-              className="inline-flex items-center space-x-2 px-8 py-4 bg-gradient-blue text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-primary-blue/50 transition-all"
-            >
-              <span>Get Started</span>
-              <FiArrowRight className="w-5 h-5" />
-            </Link>
-            {/* <Link
-              to="/signup"
-              className="inline-flex items-center space-x-2 px-8 py-4 bg-gradient-blue text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-primary-blue/50 transition-all"
-            >
-              <span>Create Account</span>
-              <FiArrowRight className="w-5 h-5" />
-            </Link> */}
+            <>
+              <Link
+                to="/login"
+                className="inline-flex items-center space-x-2 px-8 py-4 bg-gradient-blue text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-primary-blue/50 transition-all"
+              >
+                <span>Get Started</span>
+                <FiArrowRight className="w-5 h-5" />
+              </Link>
+              {/* <Link
+                to="/signup"
+                className="inline-flex items-center space-x-2 px-8 py-4 bg-gradient-blue text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-primary-blue/50 transition-all"
+              >
+                <span>Create Account</span>
+                <FiArrowRight className="w-5 h-5" />
+              </Link> */}
+            </>
           )}
         </div>
       </section>

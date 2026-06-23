@@ -9,13 +9,13 @@ import { FiCalendar, FiLoader } from 'react-icons/fi';
 // import { auth } from '../../config/firebase';
 // import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
 import { AGE_LIMITS } from '../../../../shared/constants';
-import type { MaritalStatus } from '@/shared/types';
+import { MaritalStatus } from '@/shared/types';
 
 export default function LoginPage() {
   // const [email, setEmail] = useState('');
   // const [password, setPassword] = useState('');
   const [age, setAge] = useState('');
-  const [maritalStatus, setMaritalStatus] = useState<MaritalStatus>('NOT_IN_RELATIONSHIP');
+  const [maritalStatus, setMaritalStatus] = useState<MaritalStatus>(MaritalStatus.NOT_IN_RELATIONSHIP);
   const [isLoading, setIsLoading] = useState(false);
   // const { login } = useAuthStore();
   const { setGuestProfile } = useAuthStore();
@@ -63,10 +63,10 @@ export default function LoginPage() {
   const parsedAge = parseInt(age) || 0;
 
   const accessMessage = (() => {
-    if (maritalStatus === 'MARRIED') {
+    if (maritalStatus === MaritalStatus.MARRIED) {
       return 'You will have access to Passion Couples only.';
     }
-    if (maritalStatus === 'IN_RELATIONSHIP') {
+    if (maritalStatus === MaritalStatus.IN_RELATIONSHIP) {
       return 'You will have access to Passion Singles only.';
     }
     if (parsedAge >= AGE_LIMITS.PASSION_CONNECT_MIN_AGE) {
