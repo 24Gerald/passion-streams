@@ -185,6 +185,13 @@ export interface Connection {
   user1Id: string;
   user2Id: string;
   status: "PENDING" | "CONNECTED" | "BLOCKED";
+  chatId?: string;
+  otherUser?: {
+    id?: string;
+    fullName?: string;
+    avatarUrl?: string;
+    age?: number;
+  };
   createdAt: Date;
   connectedAt?: Date;
 }

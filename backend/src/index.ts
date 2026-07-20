@@ -9,9 +9,7 @@ import { createServer } from "http";
 
 // MongoDB
 import { connectMongoDB } from "./config/database";
-
-// Firebase Admin
-import "./config/firebase";
+import { seedIfEmpty } from "./utils/seedIfEmpty";
 
 // Routes
 import authRoutes from "./routes/auth.routes";
@@ -101,6 +99,7 @@ app.use((_req, res) => {
 const startServer = async () => {
   try {
     await connectMongoDB();
+    await seedIfEmpty();
 
     httpServer.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);

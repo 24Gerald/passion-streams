@@ -19,6 +19,8 @@ export interface IChat extends Document {
   createdAt: Date;
   updatedAt: Date;
   messages: IChatMessage[]; // All messages
+  type?: "USER_ADMIN" | "CONNECT_CHAT" | "COUNSELING";
+  module?: "PASSION_SINGLES" | "PASSION_COUPLES" | "PASSION_CONNECT";
 }
 
 // Schema for individual messages
@@ -43,6 +45,15 @@ const ChatSchema = new Schema<IChat>(
     lastActivityAt: { type: Date, default: Date.now },
     isAdminActive: { type: Boolean, default: false },
     adminExitsAt: { type: Date },
+    type: {
+      type: String,
+      enum: ["USER_ADMIN", "CONNECT_CHAT", "COUNSELING"],
+      default: "USER_ADMIN",
+    },
+    module: {
+      type: String,
+      enum: ["PASSION_SINGLES", "PASSION_COUPLES", "PASSION_CONNECT"],
+    },
     messages: [ChatMessageSchema], // Embedded array of messages
   },
   { timestamps: true }, // Adds createdAt & updatedAt automatically

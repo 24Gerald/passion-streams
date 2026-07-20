@@ -70,12 +70,12 @@ export default function ChatPage() {
       );
 
       if (!adminChat) {
-        toast("Starting new chat with admin...");
-      } else {
-        setChatId(adminChat.id);
-        const messagesData = await chatService.getMessages(adminChat.id);
-        setMessages(messagesData);
+        adminChat = await chatService.createChat('USER_ADMIN', 'PASSION_COUPLES');
       }
+
+      setChatId(adminChat.id);
+      const messagesData = await chatService.getMessages(adminChat.id);
+      setMessages(messagesData);
     } catch (error: any) {
       toast.error("Failed to load chat");
     } finally {
@@ -181,7 +181,9 @@ export default function ChatPage() {
       <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-background">
         <AnimatePresence>
           {messages.map((message, index) => {
-            const isOwn = message.senderId === user?._id;
+            const isOwn =
+              message.senderId === user?._id ||
+              message.senderId === (user as any)?.id;
             const isNewDay =
               index === 0 ||
               new Date(message.createdAt).toDateString() !==

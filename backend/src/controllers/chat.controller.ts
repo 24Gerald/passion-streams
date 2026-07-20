@@ -3,6 +3,44 @@ import { AuthRequest } from "../middleware/auth.middleware";
 import { ChatModel } from "../models/chat.model";
 import { UserModel } from "../models/user.model";
 
+// Create a new chat thread
+export const createChat = async (req: AuthRequest, res: Response) => {
+  try {
+    if (!req.user)
+      return res.status(401).json({ message: "Not authenticated" });
+
+    const { type = "USER_ADMIN", module } = req.body;
+
+    if (type === "USER_ADMIN") {
+      const existing = await ChatModel.findOne({
+        type: "USER_ADMIN",
+        module,
+        participants: req.user._id,
+      });
+
+      if (existing) {
+        return res.status(201).json(existing);
+      }
+
+      const chat = await ChatModel.create({
+        participants: [req.user._id],
+        type: "USER_ADMIN",
+        module,
+        messages: [],
+        lastActivityAt: new Date(),
+      });
+
+      return res.status(201).json(chat);
+    }
+
+    return res.status(400).json({ message: "Unsupported chat type" });
+  } catch (error: any) {
+    res
+      .status(500)
+      .json({ message: "Failed to create chat", error: error.message });
+  }
+};
+
 // Fetch chats for the authenticated user
 export const getChats = async (req: AuthRequest, res: Response) => {
   try {
@@ -44,7 +82,13 @@ export const getChatMessages = async (req: AuthRequest, res: Response) => {
     if (!chat.participants.map(String).includes(req.user._id.toString()))
       return res.status(403).json({ message: "Access denied" });
 
-    res.json(chat.messages);
+    res.json(
+      chat.messages.map((msg: any) => ({
+        ...msg.toJSON?.() ?? msg,
+        id: msg._id?.toString() || msg.id,
+        chatId,
+      })),
+    );
   } catch (error: any) {
     res
       .status(500)
@@ -83,7 +127,11 @@ export const sendMessage = async (req: AuthRequest, res: Response) => {
     chat.lastActivityAt = new Date();
     await chat.save();
 
-    res.status(201).json(message);
+    res.status(201).json({
+      ...message,
+      id: chat.messages[chat.messages.length - 1]._id?.toString(),
+      chatId,
+    });
   } catch (error: any) {
     res
       .status(500)

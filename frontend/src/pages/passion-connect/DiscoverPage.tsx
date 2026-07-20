@@ -37,7 +37,17 @@ export default function DiscoverPage() {
     setDirection(action === 'like' ? 1 : -1);
 
     try {
-      const result = await connectService.swipe(currentProfile.id, action);
+      const targetUserId =
+        typeof currentProfile.userId === 'object'
+          ? (currentProfile.userId as { id?: string }).id
+          : currentProfile.userId;
+
+      if (!targetUserId) {
+        toast.error('Invalid profile');
+        return;
+      }
+
+      const result = await connectService.swipe(targetUserId, action);
       
       if (result.connected) {
         toast.success('It\'s a match! 🎉');

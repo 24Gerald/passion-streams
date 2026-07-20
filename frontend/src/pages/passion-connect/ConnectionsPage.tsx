@@ -79,44 +79,56 @@ export default function ConnectionsPage() {
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
           {connections.map((connection) => {
-            // const otherUserId = connection.user1Id; // Simplified - would need to get actual user data
             const connectedAt = connection.connectedAt
               ? new Date(connection.connectedAt).toLocaleDateString()
               : "Recently";
+            const otherName = connection.otherUser?.fullName || "Match";
+            const chatId = connection.chatId;
 
             return (
               <motion.div
                 key={connection.id}
                 variants={itemVariants}
                 whileHover={{ scale: 1.02, y: -5 }}
-                className="bg-accent-white/50 backdrop-blur-sm rounded-xl p-6 border border-accent-white hover:border-primary-pink transition-all group"
+                className="relative bg-accent-white/50 backdrop-blur-sm rounded-xl p-6 border border-accent-white hover:border-primary-pink transition-all group"
               >
-                {/* Match Badge */}
                 <div className="flex items-center space-x-2 mb-4">
                   <div className="w-12 h-12 rounded-full bg-gradient-pink flex items-center justify-center">
                     <FiHeart className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <div className="font-semibold text-lg">It's a Match!</div>
+                    <div className="font-semibold text-lg">{otherName}</div>
                     <div className="text-sm text-gray-400">
                       Connected {connectedAt}
                     </div>
                   </div>
                 </div>
 
-                {/* Profile Placeholder */}
                 <div className="w-full h-48 rounded-lg bg-primary-pink/20 flex items-center justify-center mb-4 group-hover:bg-primary-pink/30 transition-colors">
-                  <FiUser className="w-20 h-20 text-primary-pink/40" />
+                  {connection.otherUser?.avatarUrl ? (
+                    <img
+                      src={connection.otherUser.avatarUrl}
+                      alt={otherName}
+                      className="w-full h-full object-cover rounded-lg"
+                    />
+                  ) : (
+                    <FiUser className="w-20 h-20 text-primary-pink/40" />
+                  )}
                 </div>
 
-                {/* Action Buttons */}
-                <Link
-                  to={`/passion-connect/chat/${connection.id}`}
-                  className="block w-full px-4 py-3 bg-gradient-pink text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-primary-pink/50 transition-all text-center items-center justify-center space-x-2 mb-2"
-                >
-                  <FiMessageCircle className="w-5 h-5" />
-                  <span>Start Chatting</span>
-                </Link>
+                {chatId ? (
+                  <Link
+                    to={`/passion-connect/chat/${chatId}`}
+                    className="flex w-full px-4 py-3 bg-gradient-pink text-white rounded-lg font-semibold hover:shadow-lg hover:shadow-primary-pink/50 transition-all text-center items-center justify-center space-x-2 mb-2"
+                  >
+                    <FiMessageCircle className="w-5 h-5" />
+                    <span>Start Chatting</span>
+                  </Link>
+                ) : (
+                  <p className="text-sm text-gray-400 text-center mb-2">
+                    Chat unavailable
+                  </p>
+                )}
 
                 <button className="w-full px-4 py-3 bg-accent-white/50 text-white rounded-lg hover:bg-accent-white transition-colors">
                   View Profile

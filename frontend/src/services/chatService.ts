@@ -20,5 +20,10 @@ export const chatService = {
   inviteAdmin: async (chatId: string): Promise<void> => {
     await api.post(`/api/chat/${chatId}/invite-admin`);
   },
+
+  createChat: async (type: string, module?: string): Promise<Chat> => {
+    const response = await api.post<Chat>('/api/chat', { type, module });
+    return response.data;
+  },
 };
 

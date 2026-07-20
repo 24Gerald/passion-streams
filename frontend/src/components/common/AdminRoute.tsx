@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
 // import type { UserRole } from '@/shared/types';
@@ -10,14 +10,6 @@ interface AdminRouteProps {
 export default function AdminRoute({ children }: AdminRouteProps) {
   const { user, isAuthenticated } = useAuthStore();
   const location = useLocation();
-  const [isAdmin, setIsAdmin] = useState(false);
-  console.log(isAdmin);
-
-  useEffect(() => {
-    if (user?.role === "ADMIN") {
-      setIsAdmin(true);
-    }
-  }, [user]);
 
   // Check if we're already on admin login page
   if (location.pathname === "/admin/login") {

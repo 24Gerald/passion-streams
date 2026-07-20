@@ -1,11 +1,18 @@
 import { MaritalStatus, UserRole } from "../shared/types";
 import { Request, Response } from "express";
 import { OAuth2Client } from "google-auth-library";
-import admin from "../config/firebase";
+import { getFirebaseAdmin } from "../config/firebase";
 import { UserModel } from "../models/user.model";
 import { AGE_LIMITS } from "../shared/constants";
 import { comparePassword, generateToken, hashPassword } from "../utils/auth";
 import { AuthRequest } from "../middleware/auth.middleware";
+
+function sanitizeUser(user: any) {
+  const obj = user.toJSON ? user.toJSON() : { ...user };
+  delete obj.password;
+  if (obj.id && !obj._id) obj._id = obj.id;
+  return obj;
+}
 
 // Google OAuth client
 const googleClient = new OAuth2Client(
@@ -78,7 +85,7 @@ export const signup = async (req: Request, res: Response) => {
       role: user.role as UserRole,
     });
 
-    res.status(201).json({ user, token });
+    res.status(201).json({ user: sanitizeUser(user), token });
   } catch (error: any) {
     console.error("Signup error:", error);
     res.status(500).json({ message: "Signup failed", error: error.message });
@@ -109,7 +116,7 @@ export const login = async (req: Request, res: Response) => {
       role: user.role as UserRole,
     });
 
-    res.json({ user, token });
+    res.json({ user: sanitizeUser(user), token });
   } catch (error: any) {
     console.error("Login error:", error);
     res.status(500).json({ message: "Login failed", error: error.message });
@@ -150,7 +157,7 @@ export const googleLogin = async (req: Request, res: Response) => {
       role: user.role as UserRole,
     });
 
-    res.json({ user, token });
+    res.json({ user: sanitizeUser(user), token });
   } catch (error: any) {
     console.error("Google login error:", error);
     res
@@ -165,6 +172,11 @@ export const appleLogin = async (req: Request, res: Response) => {
     const { idToken, user: appleUser } = req.body;
     if (!idToken)
       return res.status(400).json({ message: "ID token is required" });
+
+    const admin = getFirebaseAdmin();
+    if (!admin) {
+      return res.status(503).json({ message: "Apple sign-in is not configured" });
+    }
 
     let decodedToken;
     try {
@@ -192,7 +204,7 @@ export const appleLogin = async (req: Request, res: Response) => {
       role: user.role as UserRole,
     });
 
-    res.json({ user, token });
+    res.json({ user: sanitizeUser(user), token });
   } catch (error: any) {
     console.error("Apple login error:", error);
     res
@@ -213,11 +225,43 @@ export const getCurrentUser = async (req: AuthRequest, res: Response) => {
       return res.status(401).json({ message: "Not authenticated" });
     }
 
-    res.json(req.user);
+    res.json(sanitizeUser(req.user));
   } catch (error: any) {
     console.error("Get current user error:", error);
     res
       .status(500)
       .json({ message: "Failed to get current user", error: error.message });
+  }
+};
+
+// Admin login — must be a user with role ADMIN
+export const adminLogin = async (req: Request, res: Response) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required" });
+    }
+
+    const user = await UserModel.findOne({ email, role: UserRole.ADMIN });
+    if (!user || !user.password) {
+      return res.status(401).json({ message: "Invalid admin credentials" });
+    }
+
+    const isValid = await comparePassword(password, user.password);
+    if (!isValid) {
+      return res.status(401).json({ message: "Invalid admin credentials" });
+    }
+
+    const token = generateToken({
+      userId: user._id.toString(),
+      email: user.email,
+      role: user.role as UserRole,
+    });
+
+    res.json({ user: sanitizeUser(user), token });
+  } catch (error: any) {
+    console.error("Admin login error:", error);
+    res.status(500).json({ message: "Admin login failed", error: error.message });
   }
 };

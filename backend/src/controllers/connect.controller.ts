@@ -3,8 +3,10 @@ import { AuthRequest } from "../middleware/auth.middleware";
 import { PassionConnectProfileModel } from "../models/passionConnectProfile.model";
 import { SwipeModel } from "../models/swipe.model";
 import { ConnectionModel } from "../models/connection.model";
+import { UserModel } from "../models/user.model";
 import { GROWTH_TIER_THRESHOLDS } from "../shared/constants";
 import { GrowthTier } from "../shared/types";
+import { findOrCreateConnectChat } from "../utils/chatHelpers";
 
 // Fetch the authenticated user's profile
 export const getProfile = async (req: AuthRequest, res: Response) => {
@@ -60,29 +62,31 @@ export const createOrUpdateProfile = async (
   }
 };
 
-// Discover other active profiles (excluding self)
+// Discover other active profiles (excluding self and already swiped)
 export const discover = async (req: AuthRequest, res: Response) => {
   try {
     if (!req.user)
       return res.status(401).json({ message: "Not authenticated" });
 
-    const userGrowth = req.user.growthPercentage || 0;
-    let userTier: GrowthTier = GrowthTier.TIER_1;
-
-    // Determine growth tier based on thresholds
-    if (userGrowth >= GROWTH_TIER_THRESHOLDS.TIER_3)
-      userTier = GrowthTier.TIER_3;
-    else if (userGrowth >= GROWTH_TIER_THRESHOLDS.TIER_2_MIN)
-      userTier = GrowthTier.TIER_3;
-
-    console.log(userTier);
+    const swiped = await SwipeModel.find({ userId: req.user._id }).select(
+      "targetUserId",
+    );
+    const swipedIds = swiped.map((s) => s.targetUserId);
 
     const profiles = await PassionConnectProfileModel.find({
       isActive: true,
-      userId: { $ne: req.user._id },
+      userId: { $nin: [req.user._id, ...swipedIds] },
+    }).populate("userId", "fullName age avatarUrl growthPercentage growthTier");
+
+    const normalized = profiles.map((p) => {
+      const json = p.toJSON() as any;
+      if (json.userId && typeof json.userId === "object") {
+        json.userId = json.userId.id || json.userId._id?.toString();
+      }
+      return json;
     });
 
-    res.json(profiles);
+    res.json(normalized);
   } catch (error: any) {
     res
       .status(500)
@@ -102,6 +106,12 @@ export const swipe = async (req: AuthRequest, res: Response) => {
         .status(400)
         .json({ message: "Profile ID and action are required" });
 
+    await SwipeModel.findOneAndUpdate(
+      { userId: req.user._id, targetUserId: profileId },
+      { action },
+      { upsert: true, new: true },
+    );
+
     if (action === "like") {
       const existingConnection = await ConnectionModel.findOne({
         $or: [
@@ -110,14 +120,7 @@ export const swipe = async (req: AuthRequest, res: Response) => {
         ],
       });
 
-      // Prevent duplicate connections
       if (!existingConnection) {
-        await SwipeModel.create({
-          userId: req.user._id,
-          targetUserId: profileId,
-          action: "like",
-        });
-
         const mutualSwipe = await SwipeModel.findOne({
           userId: profileId,
           targetUserId: req.user._id,
@@ -125,16 +128,20 @@ export const swipe = async (req: AuthRequest, res: Response) => {
         });
 
         if (mutualSwipe) {
+          const chat = await findOrCreateConnectChat(req.user._id, profileId);
+
           const connection = await ConnectionModel.create({
             user1Id: req.user._id,
             user2Id: profileId,
             status: "CONNECTED",
+            chatId: chat._id,
           });
 
           return res.json({
             message: "It's a match!",
             connected: true,
             connection,
+            chatId: chat._id,
           });
         }
       }
@@ -155,9 +162,25 @@ export const getConnections = async (req: AuthRequest, res: Response) => {
     const connections = await ConnectionModel.find({
       $or: [{ user1Id: req.user._id }, { user2Id: req.user._id }],
       status: "CONNECTED",
+    })
+      .populate("user1Id", "fullName avatarUrl age")
+      .populate("user2Id", "fullName avatarUrl age")
+      .populate("chatId");
+
+    const enriched = connections.map((conn) => {
+      const json = conn.toJSON() as any;
+      const otherUser =
+        json.user1Id?.id === req.user!._id.toString()
+          ? json.user2Id
+          : json.user1Id;
+      return {
+        ...json,
+        otherUser,
+        chatId: json.chatId?.id || json.chatId,
+      };
     });
 
-    res.json(connections);
+    res.json(enriched);
   } catch (error: any) {
     res
       .status(500)

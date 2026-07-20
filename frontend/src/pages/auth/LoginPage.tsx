@@ -1,64 +1,22 @@
 import { useState, FormEvent } from 'react';
-// import { Link, useNavigate } from 'react-router-dom';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import toast from 'react-hot-toast';
-// import { FiMail, FiLock, FiLoader } from 'react-icons/fi';
-import { FiCalendar, FiLoader } from 'react-icons/fi';
-// import { authService } from '../../services/authService';
-// import { auth } from '../../config/firebase';
-// import { GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { FiMail, FiLock, FiLoader, FiCalendar } from 'react-icons/fi';
 import { AGE_LIMITS } from '../../../../shared/constants';
 import { MaritalStatus } from '@/shared/types';
 
+type LoginMode = 'account' | 'guest';
+
 export default function LoginPage() {
-  // const [email, setEmail] = useState('');
-  // const [password, setPassword] = useState('');
+  const [mode, setMode] = useState<LoginMode>('account');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [age, setAge] = useState('');
   const [maritalStatus, setMaritalStatus] = useState<MaritalStatus>(MaritalStatus.NOT_IN_RELATIONSHIP);
   const [isLoading, setIsLoading] = useState(false);
-  // const { login } = useAuthStore();
-  const { setGuestProfile } = useAuthStore();
+  const { login, setGuestProfile } = useAuthStore();
   const navigate = useNavigate();
-
-  // const handleGoogleLogin = async () => {
-  //   setIsLoading(true);
-  //   try {
-  //     const provider = new GoogleAuthProvider();
-  //     const result = await signInWithPopup(auth, provider);
-  //     const idToken = await result.user.getIdToken();
-  //
-  //     const response = await authService.googleLogin(idToken);
-  //     // Update auth store directly
-  //     const { setUser, setToken } = useAuthStore.getState();
-  //     setUser(response.user);
-  //     setToken(response.token);
-  //     toast.success('Welcome!');
-  //     navigate('/dashboard');
-  //   } catch (error: any) {
-  //     if (error.code === 'auth/popup-closed-by-user') {
-  //       return; // User closed popup, no error
-  //     }
-  //     toast.error(error.response?.data?.message || 'Google login failed');
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-
-  // const handleSubmit = async (e: FormEvent) => {
-  //   e.preventDefault();
-  //   setIsLoading(true);
-  //
-  //   try {
-  //     await login(email, password);
-  //     toast.success('Welcome back!');
-  //     navigate('/dashboard');
-  //   } catch (error: any) {
-  //     toast.error(error.response?.data?.message || 'Login failed. Please try again.');
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
 
   const parsedAge = parseInt(age) || 0;
 
@@ -75,6 +33,21 @@ export default function LoginPage() {
     return 'You will have access to Passion Singles only. Passion Connect unlocks at age 25.';
   })();
 
+  const handleAccountSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      await login(email, password);
+      toast.success('Welcome back!');
+      navigate('/dashboard');
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || 'Login failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleGuestSubmit = (e: FormEvent) => {
     e.preventDefault();
 
@@ -85,31 +58,10 @@ export default function LoginPage() {
 
     setIsLoading(true);
     setGuestProfile(parsedAge, maritalStatus);
-    toast.success('Welcome!');
+    toast.success('Welcome! Browse modules — sign in for full features.');
     navigate('/dashboard');
     setIsLoading(false);
   };
-
-  // async function handleGoogleLogin() {
-  //   setIsLoading(true);
-  //   try {
-  //     const provider = new GoogleAuthProvider();
-  //     const result = await signInWithPopup(auth, provider);
-  //     const idToken = await result.user.getIdToken();
-  //
-  //     const response = await authService.googleLogin(idToken);
-  //     await login(response.user.email, '');
-  //     toast.success('Welcome!');
-  //     navigate('/dashboard');
-  //   } catch (error: any) {
-  //     if (error.code === 'auth/popup-closed-by-user') {
-  //       return; // User closed popup, no error
-  //     }
-  //     toast.error(error.response?.data?.message || 'Google login failed');
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // }
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
@@ -126,166 +78,155 @@ export default function LoginPage() {
             <span className="text-gradient-blue">Passion</span>
             <span className="text-gradient-pink">Streams</span>
           </h1>
-          <p className="text-gray-400">Tell us about yourself to get started</p>
+          <p className="text-gray-400">Sign in to post, chat, and connect</p>
         </div>
 
         <div className="bg-accent-white/50 backdrop-blur-sm rounded-xl p-8 border border-accent-white">
-          <form onSubmit={handleGuestSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="age" className="block text-sm font-medium text-gray-300 mb-2">
-                Age
-              </label>
-              <div className="relative">
-                <FiCalendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  id="age"
-                  type="number"
-                  min={AGE_LIMITS.MIN_AGE}
-                  value={age}
-                  onChange={(e) => setAge(e.target.value)}
-                  required
-                  className="w-full pl-10 pr-4 py-3 bg-background border border-accent-white rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-blue focus:border-transparent"
-                  placeholder="Your age"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="maritalStatus" className="block text-sm font-medium text-gray-300 mb-2">
-                Marital Status
-              </label>
-              <select
-                id="maritalStatus"
-                value={maritalStatus}
-                onChange={(e) => setMaritalStatus(e.target.value as MaritalStatus)}
-                required
-                className="w-full px-4 py-3 bg-background border border-accent-white rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary-blue focus:border-transparent"
-              >
-                <option value="NOT_IN_RELATIONSHIP">Not in a relationship</option>
-                <option value="IN_RELATIONSHIP">In a relationship</option>
-                <option value="MARRIED">Married</option>
-              </select>
-              <p className="mt-2 text-sm text-gray-400">{accessMessage}</p>
-            </div>
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-gradient-blue text-white py-3 rounded-lg font-semibold hover:shadow-lg hover:shadow-primary-blue/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
-            >
-              {isLoading ? (
-                <>
-                  <FiLoader className="w-5 h-5 animate-spin" />
-                  <span>Loading...</span>
-                </>
-              ) : (
-                <span>Continue</span>
-              )}
-            </button>
-          </form>
-
-          {/* --- Original login form (commented out for testing) --- */}
-          {/*
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
-                Email
-              </label>
-              <div className="relative">
-                <FiMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="w-full pl-10 pr-4 py-3 bg-background border border-accent-white rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-blue focus:border-transparent"
-                  placeholder="you@example.com"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
-                Password
-              </label>
-              <div className="relative">
-                <FiLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                <input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="w-full pl-10 pr-4 py-3 bg-background border border-accent-white rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-blue focus:border-transparent"
-                  placeholder="••••••••"
-                />
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="w-full bg-gradient-blue text-white py-3 rounded-lg font-semibold hover:shadow-lg hover:shadow-primary-blue/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
-            >
-              {isLoading ? (
-                <>
-                  <FiLoader className="w-5 h-5 animate-spin" />
-                  <span>Signing in...</span>
-                </>
-              ) : (
-                <span>Sign In</span>
-              )}
-            </button>
-          </form>
-
-          <div className="mt-6">
-            <div className="relative my-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-accent-white"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-accent-white/50 text-gray-400">Or continue with</span>
-              </div>
-            </div>
-
+          <div className="flex mb-6 rounded-lg bg-background p-1">
             <button
               type="button"
-              onClick={handleGoogleLogin}
-              disabled={isLoading}
-              className="w-full px-4 py-3 bg-background border border-accent-white rounded-lg text-white hover:bg-accent-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+              onClick={() => setMode('account')}
+              className={`flex-1 py-2 rounded-md text-sm font-medium transition-colors ${
+                mode === 'account' ? 'bg-primary-blue text-white' : 'text-gray-400'
+              }`}
             >
-              <svg className="w-5 h-5" viewBox="0 0 24 24">
-                <path
-                  fill="currentColor"
-                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                />
-                <path
-                  fill="currentColor"
-                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                />
-                <path
-                  fill="currentColor"
-                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                />
-                <path
-                  fill="currentColor"
-                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                />
-              </svg>
-              <span>Sign in with Google</span>
+              Sign In
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode('guest')}
+              className={`flex-1 py-2 rounded-md text-sm font-medium transition-colors ${
+                mode === 'guest' ? 'bg-primary-blue text-white' : 'text-gray-400'
+              }`}
+            >
+              Guest Browse
             </button>
           </div>
 
+          {mode === 'account' ? (
+            <form onSubmit={handleAccountSubmit} className="space-y-6">
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-300 mb-2">
+                  Email
+                </label>
+                <div className="relative">
+                  <FiMail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="w-full pl-10 pr-4 py-3 bg-background border border-accent-white rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-blue focus:border-transparent"
+                    placeholder="sarah@test.com"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-2">
+                  Password
+                </label>
+                <div className="relative">
+                  <FiLock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="w-full pl-10 pr-4 py-3 bg-background border border-accent-white rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-blue focus:border-transparent"
+                    placeholder="password123"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-gradient-blue text-white py-3 rounded-lg font-semibold hover:shadow-lg hover:shadow-primary-blue/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+              >
+                {isLoading ? (
+                  <>
+                    <FiLoader className="w-5 h-5 animate-spin" />
+                    <span>Signing in...</span>
+                  </>
+                ) : (
+                  <span>Sign In</span>
+                )}
+              </button>
+
+              <p className="text-center text-sm text-gray-500">
+                Test: sarah@test.com / password123
+              </p>
+            </form>
+          ) : (
+            <form onSubmit={handleGuestSubmit} className="space-y-6">
+              <p className="text-sm text-gray-400">
+                Guest mode lets you browse modules only. Sign in for posts, chat, and Connect.
+              </p>
+              <div>
+                <label htmlFor="age" className="block text-sm font-medium text-gray-300 mb-2">
+                  Age
+                </label>
+                <div className="relative">
+                  <FiCalendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <input
+                    id="age"
+                    type="number"
+                    min={AGE_LIMITS.MIN_AGE}
+                    value={age}
+                    onChange={(e) => setAge(e.target.value)}
+                    required
+                    className="w-full pl-10 pr-4 py-3 bg-background border border-accent-white rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-blue focus:border-transparent"
+                    placeholder="Your age"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="maritalStatus" className="block text-sm font-medium text-gray-300 mb-2">
+                  Marital Status
+                </label>
+                <select
+                  id="maritalStatus"
+                  value={maritalStatus}
+                  onChange={(e) => setMaritalStatus(e.target.value as MaritalStatus)}
+                  required
+                  className="w-full px-4 py-3 bg-background border border-accent-white rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-primary-blue focus:border-transparent"
+                >
+                  <option value="NOT_IN_RELATIONSHIP">Not in a relationship</option>
+                  <option value="IN_RELATIONSHIP">In a relationship</option>
+                  <option value="MARRIED">Married</option>
+                </select>
+                <p className="mt-2 text-sm text-gray-400">{accessMessage}</p>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-gradient-blue text-white py-3 rounded-lg font-semibold hover:shadow-lg hover:shadow-primary-blue/50 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+              >
+                {isLoading ? (
+                  <>
+                    <FiLoader className="w-5 h-5 animate-spin" />
+                    <span>Loading...</span>
+                  </>
+                ) : (
+                  <span>Continue as Guest</span>
+                )}
+              </button>
+            </form>
+          )}
+
           <div className="mt-6 text-center">
             <p className="text-gray-400">
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <Link to="/signup" className="text-primary-blue hover:underline">
                 Sign up
               </Link>
             </p>
           </div>
-          */}
         </div>
       </div>
     </div>

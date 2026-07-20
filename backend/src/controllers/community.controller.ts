@@ -152,7 +152,7 @@ export const createComment = async (req: AuthRequest, res: Response) => {
       postId,
       userId: req.user._id,
       content,
-      status: "PENDING",
+      status: "APPROVED",
     });
 
     res.status(201).json(comment);

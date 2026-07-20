@@ -79,5 +79,13 @@ export const authService = {
     });
     return response.data;
   },
+
+  adminLogin: async (email: string, password: string): Promise<LoginResponse> => {
+    const response = await api.post<LoginResponse>('/api/auth/admin-login', {
+      email,
+      password,
+    });
+    return response.data;
+  },
 };
 

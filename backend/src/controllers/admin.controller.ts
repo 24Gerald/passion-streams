@@ -36,7 +36,7 @@ export const getModerationQueue = async (req: AuthRequest, res: Response) => {
     if (type === "posts") {
       const posts = await CommunityPostModel.find({ status: "PENDING" })
         .sort({ createdAt: -1 })
-        .lean();
+        .populate("userId", "fullName avatarUrl");
 
       return res.json({ posts, comments: [] });
     }

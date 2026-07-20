@@ -173,7 +173,9 @@ export default function ChatPage() {
       <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-background">
         <AnimatePresence>
           {messages.map((message, index) => {
-            const isOwn = message.senderId === user?._id;
+            const isOwn =
+              message.senderId === user?._id ||
+              message.senderId === (user as any)?.id;
             const isNewDay =
               index === 0 ||
               new Date(message.createdAt).toDateString() !==

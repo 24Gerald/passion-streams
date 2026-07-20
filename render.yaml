@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: passion-streams-api
+    runtime: node
+    plan: free
+    region: oregon
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: FRONTEND_URL
+        value: https://passion-streams-orpin.vercel.app
+      - key: SEED_IF_EMPTY
+        value: "true"
+      - key: MONGODB_URI
+        sync: false

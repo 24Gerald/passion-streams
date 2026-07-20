@@ -14,6 +14,7 @@ interface AuthState {
   setToken: (token: string | null) => void;
   setGuestProfile: (age: number, maritalStatus: MaritalStatus) => void;
   login: (email: string, password: string) => Promise<void>;
+  adminLogin: (email: string, password: string) => Promise<void>;
   signup: (data: SignupData) => Promise<void>;
   logout: () => Promise<void>;
   checkAuth: () => Promise<void>;
@@ -71,6 +72,23 @@ export const useAuthStore = create<AuthState>()(
             user: response.user,
             token: response.token,
             isAuthenticated: true,
+            isGuest: false,
+            isLoading: false,
+          });
+        } catch (error) {
+          set({ isLoading: false });
+          throw error;
+        }
+      },
+
+      adminLogin: async (email, password) => {
+        try {
+          const response = await authService.adminLogin(email, password);
+          set({
+            user: response.user,
+            token: response.token,
+            isAuthenticated: true,
+            isGuest: false,
             isLoading: false,
           });
         } catch (error) {
@@ -86,6 +104,7 @@ export const useAuthStore = create<AuthState>()(
             user: response.user,
             token: response.token,
             isAuthenticated: true,
+            isGuest: false,
             isLoading: false,
           });
         } catch (error) {
