@@ -16,7 +16,7 @@ services:
       - key: JWT_EXPIRES_IN
         value: 7d
       - key: FRONTEND_URL
-        value: https://passion-streams-orpin.vercel.app
+        value: https://passion-streams-silk.vercel.app
       - key: SEED_IF_EMPTY
         value: "true"
       - key: MONGODB_URI

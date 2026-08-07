@@ -2,6 +2,7 @@ import { Schema, model, Types, Document } from "mongoose";
 
 // Individual chat message
 export interface IChatMessage {
+  _id?: Types.ObjectId;
   senderId: Types.ObjectId; // User who sent the message
   content: string; // Message content
   type: "TEXT" | "IMAGE" | "FILE"; // Message type

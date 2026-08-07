@@ -3,9 +3,6 @@ import { AuthRequest } from "../middleware/auth.middleware";
 import { PassionConnectProfileModel } from "../models/passionConnectProfile.model";
 import { SwipeModel } from "../models/swipe.model";
 import { ConnectionModel } from "../models/connection.model";
-import { UserModel } from "../models/user.model";
-import { GROWTH_TIER_THRESHOLDS } from "../shared/constants";
-import { GrowthTier } from "../shared/types";
 import { findOrCreateConnectChat } from "../utils/chatHelpers";
 
 // Fetch the authenticated user's profile

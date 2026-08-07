@@ -3,9 +3,9 @@ import { Schema } from "mongoose";
 export function applySerializePlugin(schema: Schema) {
   schema.set("toJSON", {
     virtuals: true,
-    transform: (_doc, ret) => {
+    transform: (_doc, ret: Record<string, unknown>) => {
       if (ret._id) {
-        ret.id = ret._id.toString();
+        ret.id = String(ret._id);
         delete ret._id;
       }
       delete ret.__v;
