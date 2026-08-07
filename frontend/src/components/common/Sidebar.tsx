@@ -6,7 +6,7 @@ import {
   FiUsers
 } from 'react-icons/fi';
 import { NavLink, useLocation } from 'react-router-dom';
-import { MODULE_ACCESS_RULES } from '../../../../shared/constants';
+import { MODULE_ACCESS_RULES } from '@/shared/constants';
 import { useAuthStore } from '../../store/authStore';
 
 export default function Sidebar() {

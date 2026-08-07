@@ -49,6 +49,7 @@ firestore-debug.log
 # Build outputs
 *.tsbuildinfo
 next-env.d.ts
+frontend/shared/
 
 # Service worker
 sw.js

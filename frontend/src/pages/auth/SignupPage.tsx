@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import toast from 'react-hot-toast';
 import { FiMail, FiLock, FiUser, FiCalendar, FiMapPin, FiLoader } from 'react-icons/fi';
-import { AGE_LIMITS } from '../../../../shared/constants';
+import { AGE_LIMITS } from '@/shared/constants';
 import type { MaritalStatus } from '@/shared/types';
 
 export default function SignupPage() {

@@ -1,6 +1,6 @@
 import { FiArrowRight, FiBook, FiHeart, FiUsers } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
-import { AGE_LIMITS, MODULE_ACCESS_RULES } from '../../../shared/constants';
+import { AGE_LIMITS, MODULE_ACCESS_RULES } from '@/shared/constants';
 import { useAuthStore } from '../store/authStore';
 
 export default function DashboardPage() {

@@ -1,0 +1,8 @@
+backend/
+.cursor/
+node_modules/
+.git/
+*.md
+docs/
+database-schemas/
+render.yaml

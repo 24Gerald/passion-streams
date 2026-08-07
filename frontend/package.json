@@ -4,6 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "prebuild": "node -e \"const fs=require('fs'); if(fs.existsSync('../shared')) fs.cpSync('../shared','./shared',{recursive:true,force:true}); else if(!fs.existsSync('./shared')) { console.error('shared folder missing'); process.exit(1); }\"",
+    "postinstall": "node -e \"const fs=require('fs'); if(fs.existsSync('../shared')) fs.cpSync('../shared','./shared',{recursive:true,force:true});\"",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"

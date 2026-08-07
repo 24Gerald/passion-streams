@@ -1,6 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
-import { AGE_LIMITS } from '../../../../shared/constants';
+import { AGE_LIMITS } from '@/shared/constants';
 import ModuleNavigation from '../../components/common/ModuleNavigation';
 import ProfilePage from './ProfilePage';
 import DiscoverPage from './DiscoverPage';

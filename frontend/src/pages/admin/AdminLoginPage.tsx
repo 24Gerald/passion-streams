@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import toast from 'react-hot-toast';
 import { FiMail, FiLock, FiLoader } from 'react-icons/fi';
-import { ADMIN_PASSWORD } from '../../../../shared/constants';
+import { ADMIN_PASSWORD } from '@/shared/constants';
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('admin@passionstreams.com');
@@ -26,7 +26,8 @@ export default function AdminLoginPage() {
       setIsLoading(false);
     }
   };
-
+  //sendback the file info at 0
+  
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="w-full max-w-md">

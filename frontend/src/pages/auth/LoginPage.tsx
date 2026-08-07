@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import toast from 'react-hot-toast';
 import { FiMail, FiLock, FiLoader, FiCalendar } from 'react-icons/fi';
-import { AGE_LIMITS } from '../../../../shared/constants';
+import { AGE_LIMITS } from '@/shared/constants';
 import { MaritalStatus } from '@/shared/types';
 
 type LoginMode = 'account' | 'guest';
