@@ -1,7 +1,11 @@
 import { io, Socket } from 'socket.io-client';
 // import { useAuthStore } from '../store/authStore';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  (typeof window !== 'undefined' && window.location.hostname !== 'localhost'
+    ? 'https://passion-streams-api.onrender.com'
+    : 'http://localhost:5000');
 
 let socket: Socket | null = null;
 

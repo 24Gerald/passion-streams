@@ -2,7 +2,7 @@ services:
   - type: web
     name: passion-streams-api
     runtime: node
-    plan: free
+    plan: starter
     region: oregon
     rootDir: backend
     buildCommand: npm install --include=dev && npm run build
